@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenealogyApp", "GenealogyApp\GenealogyApp.csproj", "{1DE4BB0F-7003-49CA-94D0-7E3B9B28B3FB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenealogyApp.API", "GenealogyApp.API\GenealogyApp.API.csproj", "{2076DD5C-5EC3-46BA-9064-C054C4AF005F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenealogyApp.Infrastructure", "GenealogyApp.Infrastructure\GenealogyApp.Infrastructure.csproj", "{8BFC452B-A843-4C3B-A92D-B8207763B073}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenealogyApp.Domain", "GenealogyApp.Domain\GenealogyApp.Domain.csproj", "{D9699C20-011C-48CC-9CDF-0EC5961863D9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenealogyApp.Shared", "GenealogyApp.Shared\GenealogyApp.Shared.csproj", "{09C4982F-A35D-48CE-87D1-9A3EDF664D41}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenealogyApp.Application", "GenealogyApp.Application\GenealogyApp.Application.csproj", "{CE9D70CB-31CC-48B4-A2D3-9E91B894ABB7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1DE4BB0F-7003-49CA-94D0-7E3B9B28B3FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DE4BB0F-7003-49CA-94D0-7E3B9B28B3FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DE4BB0F-7003-49CA-94D0-7E3B9B28B3FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DE4BB0F-7003-49CA-94D0-7E3B9B28B3FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2076DD5C-5EC3-46BA-9064-C054C4AF005F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2076DD5C-5EC3-46BA-9064-C054C4AF005F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2076DD5C-5EC3-46BA-9064-C054C4AF005F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2076DD5C-5EC3-46BA-9064-C054C4AF005F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BFC452B-A843-4C3B-A92D-B8207763B073}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BFC452B-A843-4C3B-A92D-B8207763B073}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BFC452B-A843-4C3B-A92D-B8207763B073}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BFC452B-A843-4C3B-A92D-B8207763B073}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9699C20-011C-48CC-9CDF-0EC5961863D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9699C20-011C-48CC-9CDF-0EC5961863D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9699C20-011C-48CC-9CDF-0EC5961863D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9699C20-011C-48CC-9CDF-0EC5961863D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09C4982F-A35D-48CE-87D1-9A3EDF664D41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09C4982F-A35D-48CE-87D1-9A3EDF664D41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09C4982F-A35D-48CE-87D1-9A3EDF664D41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09C4982F-A35D-48CE-87D1-9A3EDF664D41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE9D70CB-31CC-48B4-A2D3-9E91B894ABB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE9D70CB-31CC-48B4-A2D3-9E91B894ABB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE9D70CB-31CC-48B4-A2D3-9E91B894ABB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE9D70CB-31CC-48B4-A2D3-9E91B894ABB7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {82D686B4-4A39-4484-8CD5-D85EF5347CF0}
+	EndGlobalSection
+EndGlobal
