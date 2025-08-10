@@ -6,9 +6,9 @@ namespace GenealogyApp.Domain.Entities
     {
         public Guid PhotoId { get; set; }
         public Guid MemberId { get; set; }
-        public string Url { get; set; }
+        public string? Url { get; set; }
         public DateTime UploadedAt { get; set; }
 
-        public FamilyMember Member { get; set; }
+        public FamilyMember? Member { get; set; }
     }
 }

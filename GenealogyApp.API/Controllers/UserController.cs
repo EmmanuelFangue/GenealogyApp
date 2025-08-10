@@ -1,6 +1,7 @@
 using GenealogyApp.Application.Interfaces;
-using GenealogyApp.Domain.Entities;
+using GenealogyApp.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GenealogyApp.API.Controllers
 {
@@ -15,33 +16,55 @@ namespace GenealogyApp.API.Controllers
             _service = service;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<User>> Get(Guid id)
+        // Inscription
+        [HttpPost("register")]
+        public async Task<ActionResult<UserDto>> Register([FromBody] RegisterUserDto dto)
         {
-            var user = await _service.GetByIdAsync(id);
-            return user == null ? NotFound() : Ok(user);
+            var result = await _service.RegisterAsync(dto);
+            return result != null ? Ok(result) : BadRequest("Inscription impossible.");
         }
 
-        [HttpPost]
-        public async Task<ActionResult<User>> Create(User user)
+        // Authentification
+        [HttpPost("login")]
+        public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginDto dto)
         {
-            var created = await _service.CreateAsync(user);
-            return CreatedAtAction(nameof(Get), new { id = created.UserId }, created);
+            var result = await _service.LoginAsync(dto);
+            return result != null ? Ok(result) : Unauthorized("Identifiants invalides.");
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, User user)
+        // Activation/SMS/2FA (exemple: code SMS)
+        [HttpPost("activate")]
+        public async Task<ActionResult<bool>> Activate2FA([FromBody] Activate2FADto dto)
         {
-            if (id != user.UserId) return BadRequest();
-            await _service.UpdateAsync(user);
-            return NoContent();
+            var success = await _service.Activate2FAAsync(dto);
+            return success ? Ok() : BadRequest("Activation 2FA impossible.");
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+        // Récupération profil
+        [HttpGet("{userId}")]
+        [Authorize]
+        public async Task<ActionResult<UserDto>> Get(Guid userId)
         {
-            await _service.DeleteAsync(id);
-            return NoContent();
+            var user = await _service.GetUserAsync(userId);
+            return user != null ? Ok(user) : NotFound();
+        }
+
+        // Mise à jour profil
+        [HttpPut("{userId}")]
+        [Authorize]
+        public async Task<IActionResult> Update(Guid userId, [FromBody] UpdateUserDto dto)
+        {
+            var success = await _service.UpdateUserAsync(userId, dto);
+            return success ? NoContent() : BadRequest();
+        }
+
+        // Suppression utilisateur
+        [HttpDelete("{userId}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(Guid userId)
+        {
+            var success = await _service.DeleteUserAsync(userId);
+            return success ? NoContent() : NotFound();
         }
     }
 }

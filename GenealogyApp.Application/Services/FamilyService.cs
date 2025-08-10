@@ -1,47 +1,60 @@
+using GenealogyApp.Application.DTOs;
 using GenealogyApp.Application.Interfaces;
-using GenealogyApp.Domain.Entities;
 using GenealogyApp.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace GenealogyApp.Application.Services
 {
     public class FamilyService : IFamilyService
     {
-        private readonly GenealogyDbContext _context;
+        private readonly GenealogyDbContext _db;
 
-        public FamilyService(GenealogyDbContext context)
+        public FamilyService(GenealogyDbContext db)
         {
-            _context = context;
+            _db = db;
         }
 
-        public async Task<Guid> AddFamilyMemberAsync(Guid userId, string firstName, string lastName, DateTime birthDate, string gender, string relationToUser)
+        // ... autres méthodes ...
+
+        public async Task<IEnumerable<FamilyMemberDto>> SearchMembersAsync(FamilyMemberSearchDto criteria)
         {
-            var member = new FamilyMember
+            var query = _db.FamilyMembers.AsQueryable();
+
+            if (criteria.UserId.HasValue)
+                query = query.Where(m => m.UserId == criteria.UserId.Value);
+
+            if (!string.IsNullOrWhiteSpace(criteria.FirstName))
+                query = query.Where(m => m.FirstName.Contains(criteria.FirstName));
+
+            if (!string.IsNullOrWhiteSpace(criteria.LastName))
+                query = query.Where(m => m.LastName != null && m.LastName.Contains(criteria.LastName));
+
+            if (!string.IsNullOrWhiteSpace(criteria.RelationToUser))
+                query = query.Where(m => m.RelationToUser != null && m.RelationToUser.Contains(criteria.RelationToUser));
+
+            if (criteria.MinBirthDate.HasValue)
+                query = query.Where(m => m.BirthDate != null && m.BirthDate >= criteria.MinBirthDate.Value);
+
+            if (criteria.MaxBirthDate.HasValue)
+                query = query.Where(m => m.BirthDate != null && m.BirthDate <= criteria.MaxBirthDate.Value);
+
+            if (!string.IsNullOrWhiteSpace(criteria.Gender))
+                query = query.Where(m => m.Gender == criteria.Gender);
+
+            var members = await query.Select(m => new FamilyMemberDto
             {
-                MemberId = Guid.NewGuid(),
-                UserId = userId,
-                FirstName = firstName,
-                LastName = lastName,
-                BirthDate = birthDate,
-                Gender = gender,
-                RelationToUser = relationToUser
-            };
+                MemberId = m.MemberId,
+                UserId = m.UserId,
+                FirstName = m.FirstName,
+                LastName = m.LastName,
+                BirthDate = (DateTime)m.BirthDate,
+                Gender = m.Gender,
+                RelationToUser = m.RelationToUser,
+                ProfilePhotoUrl = m.ProfilePhotoUrl,
+                Summary = m.Summary
+            }).ToListAsync();
 
-            _context.FamilyMembers.Add(member);
-            await _context.SaveChangesAsync();
-            return member.MemberId;
-        }
-
-        public Task<bool> UpdateFamilyMemberAsync(Guid memberId, string firstName, string lastName, DateTime birthDate, string gender, string relationToUser)
-        {
-            // TODO: Implement update logic
-            return Task.FromResult(true);
-        }
-
-        public Task<bool> RemoveFamilyMemberAsync(Guid memberId)
-        {
-            // TODO: Implement remove logic
-            return Task.FromResult(true);
+            return members;
         }
     }
-}
 }

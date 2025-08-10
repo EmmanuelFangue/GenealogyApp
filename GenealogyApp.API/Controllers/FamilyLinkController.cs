@@ -1,45 +1,59 @@
 using GenealogyApp.Application.Interfaces;
-using GenealogyApp.Domain.Entities;
+using GenealogyApp.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GenealogyApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class FamilyLinkController : ControllerBase
     {
-        private readonly ILinkService _service;
+        private readonly IFamilyLinkService _linkService;
 
-        public FamilyLinkController(ILinkService service)
+        public FamilyLinkController(IFamilyLinkService linkService)
         {
-            _service = service;
+            _linkService = linkService;
         }
 
+        // Demander une connexion familiale
         [HttpPost("request")]
-        public async Task<IActionResult> RequestLink(FamilyLink link)
+        public async Task<ActionResult<FamilyLinkDto>> RequestFamilyLink([FromBody] FamilyLinkRequestDto request)
         {
-            await _service.SendConnectionRequestAsync(link);
-            return Ok();
+            var result = await _linkService.RequestFamilyLinkAsync(request);
+            return result != null ? Ok(result) : BadRequest("Impossible de créer la demande.");
         }
 
-        [HttpPost("accept/{linkId}")]
-        public async Task<IActionResult> Accept(Guid linkId)
+        // Accepter une demande de connexion familiale
+        [HttpPost("{linkId}/accept")]
+        public async Task<ActionResult<FamilyLinkDto>> AcceptFamilyLink(Guid linkId)
         {
-            await _service.AcceptConnectionAsync(linkId);
-            return Ok();
+            var result = await _linkService.AcceptFamilyLinkAsync(linkId);
+            return result != null ? Ok(result) : NotFound("Demande non trouvée.");
         }
 
-        [HttpPost("reject/{linkId}")]
-        public async Task<IActionResult> Reject(Guid linkId)
+        // Refuser une demande de connexion familiale
+        [HttpPost("{linkId}/reject")]
+        public async Task<IActionResult> RejectFamilyLink(Guid linkId)
         {
-            await _service.RejectConnectionAsync(linkId);
-            return Ok();
+            var success = await _linkService.RejectFamilyLinkAsync(linkId);
+            return success ? NoContent() : NotFound("Demande non trouvée.");
         }
 
+        // Annuler une demande de connexion familiale (par le demandeur)
+        [HttpPost("{linkId}/cancel")]
+        public async Task<IActionResult> CancelFamilyLink(Guid linkId)
+        {
+            var success = await _linkService.CancelFamilyLinkAsync(linkId);
+            return success ? NoContent() : NotFound("Demande non trouvée.");
+        }
+
+        // Lister les demandes reçues ou envoyées
         [HttpGet("user/{userId}")]
-        public async Task<ActionResult<IEnumerable<FamilyLink>>> GetLinks(Guid userId)
+        public async Task<ActionResult<IEnumerable<FamilyLinkDto>>> GetUserLinks(Guid userId)
         {
-            var links = await _service.GetLinksForUserAsync(userId);
+            var links = await _linkService.GetUserLinksAsync(userId);
             return Ok(links);
         }
     }

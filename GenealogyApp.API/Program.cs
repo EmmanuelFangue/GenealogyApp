@@ -7,14 +7,23 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using System.Xml.Linq;
 using GenealogyApp.Application.Mappings;
+using GenealogyApp.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+// Clé secrète (à stocker dans appsettings ou variables d'env en prod)
+var secretKey = builder.Configuration["Jwt:Key"] ?? "supersecretkey";
+var issuer = builder.Configuration["Jwt:Issuer"] ?? "GenealogyApp";
+var audience = builder.Configuration["Jwt:Audience"] ?? "GenealogyAppClient";
 
 // Connexion à la base de données SQL Server
-builder.Services.AddDbContext<GenealogyDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+if (builder.Environment.EnvironmentName != "Testing")
+{
+    builder.Services.AddDbContext<GenealogyDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GenealogyDbContext")));
+}
+
 
 // Authentification JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -25,14 +34,33 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = issuer,
+            ValidAudience = audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
         };
     });
+
+
+
+// CORS pour React
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReactApp",
+        policy => policy
+            .WithOrigins("http://localhost:5173") // ou le port de ton client React
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 
 // Injection des services métiers
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFamilyService, FamilyService>();
 builder.Services.AddScoped<ILinkService, LinkService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
+
+// AutoMapper
+builder.Services.AddAutoMapper(cfg => {cfg.AddProfile<MappingProfile>();});
 
 // Swagger + sécurité
 builder.Services.AddEndpointsApiExplorer();
@@ -57,31 +85,9 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
-
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Entrez un token JWT valide",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
-
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-            },
-            Array.Empty<string>()
-        }
-    });
 });
 
 builder.Services.AddControllers();
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
 
 var app = builder.Build();
 
@@ -94,9 +100,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowReactApp");
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+//
+//app.UseMiddleware<JwtAuthMiddleware>();
 
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

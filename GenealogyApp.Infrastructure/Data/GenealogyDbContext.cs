@@ -1,8 +1,5 @@
 ﻿using GenealogyApp.Domain.Entities;
-using GenealogyApp.Infrastructure.Configurations;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Reflection.Emit;
 
 namespace GenealogyApp.Infrastructure.Data
 {
@@ -21,27 +18,15 @@ namespace GenealogyApp.Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Applique les configurations Fluent API
+            modelBuilder.ApplyConfiguration(new Configurations.UserConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.FamilyMemberConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.PhotoConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.FamilyLinkConfiguration());
+            modelBuilder.ApplyConfiguration(new Configurations.AuditLogConfiguration());
+
+            // Appelle le OnModelCreating de la base
             base.OnModelCreating(modelBuilder);
-
-            // Exemple de configuration Fluent API
-            modelBuilder.Entity<User>()
-                .HasIndex(u => u.Email)
-                .IsUnique();
-
-            modelBuilder.Entity<FamilyLink>()
-                .Property(f => f.Status)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<AuditLog>()
-                .Property(a => a.Timestamp)
-                .HasDefaultValueSql("GETDATE()");
-
-            modelBuilder.ApplyConfiguration(new UserConfiguration());
-            modelBuilder.ApplyConfiguration(new FamilyMemberConfiguration());
-            modelBuilder.ApplyConfiguration(new PhotoConfiguration());
-            modelBuilder.ApplyConfiguration(new FamilyLinkConfiguration());
-            modelBuilder.ApplyConfiguration(new AuditLogConfiguration());
-
         }
     }
 }

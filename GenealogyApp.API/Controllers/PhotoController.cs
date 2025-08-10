@@ -1,39 +1,70 @@
 using GenealogyApp.Application.Interfaces;
-using GenealogyApp.Domain.Entities;
+using GenealogyApp.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GenealogyApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class PhotoController : ControllerBase
     {
-        private readonly IFamilyService _service;
+        private readonly IPhotoService _photoService;
 
-        public PhotoController(IFamilyService service)
+        public PhotoController(IPhotoService photoService)
         {
-            _service = service;
+            _photoService = photoService;
         }
 
-        [HttpGet("{memberId}")]
-        public async Task<ActionResult<IEnumerable<Photo>>> GetPhotos(Guid memberId)
+        /// <summary>
+        /// Ajoute une photo à un membre de la famille (max 20).
+        /// </summary>
+        [HttpPost("add")]
+        [ProducesResponseType(typeof(PhotoDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<PhotoDto>> AddPhoto([FromForm] PhotoUploadDto dto)
         {
-            var photos = await _service.GetPhotosByMemberIdAsync(memberId);
+            if (dto.File == null || dto.File.Length == 0)
+                return BadRequest("Aucun fichier fourni.");
+
+            var result = await _photoService.AddPhotoAsync(dto);
+
+            if (result == null)
+                return BadRequest("Limite de 20 photos atteinte ou erreur technique.");
+
+            return Ok(result);
+        }
+
+
+
+
+        /// <summary>
+        /// Liste les photos d'un membre.
+        /// </summary>
+        [HttpGet("{memberId}")]
+        public async Task<ActionResult<IEnumerable<PhotoDto>>> GetPhotos(Guid memberId)
+        {
+            var photos = await _photoService.GetPhotosAsync(memberId);
             return Ok(photos);
         }
 
-        [HttpPost("{memberId}")]
-        public async Task<IActionResult> Upload(Guid memberId, List<IFormFile> files)
+        /// <summary>
+        /// Supprime une photo d'un membre.
+        /// </summary>
+        [HttpDelete("{memberId}/{photoId}")]
+        public async Task<IActionResult> DeletePhoto(Guid memberId, Guid photoId)
         {
-            await _service.UploadPhotosAsync(memberId, files);
-            return Ok();
+            var success = await _photoService.DeletePhotoAsync(memberId, photoId);
+            return success ? NoContent() : NotFound("Photo non trouvée ou membre non valide.");
         }
 
-        [HttpDelete("{photoId}")]
-        public async Task<IActionResult> Delete(Guid photoId)
+        [HttpPut("{memberId}/set-profile/{photoId}")]
+        public async Task<IActionResult> SetProfilePhoto(Guid memberId, Guid photoId)
         {
-            await _service.DeletePhotoAsync(photoId);
-            return NoContent();
+            var success = await _photoService.SetProfilePhotoAsync(memberId, photoId);
+            return success ? NoContent() : NotFound("Photo ou membre introuvable.");
         }
+
     }
 }

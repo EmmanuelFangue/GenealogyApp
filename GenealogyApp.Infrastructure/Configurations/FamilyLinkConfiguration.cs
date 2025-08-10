@@ -1,4 +1,3 @@
-
 using GenealogyApp.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -9,20 +8,31 @@ namespace GenealogyApp.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<FamilyLink> builder)
         {
-            builder.HasKey(f => f.LinkId);
-            builder.Property(f => f.Status).HasMaxLength(20).IsRequired();
-            builder.Property(f => f.RelationType).HasMaxLength(50);
-            builder.Property(f => f.CreatedAt).HasDefaultValueSql("GETDATE()");
+            builder.ToTable("FamilyLinks", "genea");
+            builder.HasKey(l => l.LinkId);
 
-            builder.HasOne<User>()
-                   .WithMany()
-                   .HasForeignKey(f => f.RequesterId)
-                   .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(l => l.Status)
+                .HasMaxLength(20)
+                .IsRequired();
 
-            builder.HasOne<User>()
-                   .WithMany()
-                   .HasForeignKey(f => f.ReceiverId)
-                   .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(l => l.RelationType)
+                .HasMaxLength(50);
+
+            builder.Property(l => l.CreatedAt)
+                .HasDefaultValueSql("GETDATE()");
+
+            builder.Property(l => l.ConfirmedAt);
+
+            // Configuration explicite des deux relations vers User
+            builder.HasOne(l => l.Requester)
+                .WithMany() // ou .WithMany(u => u.RequestedLinks) si tu veux une navigation inverse
+                .HasForeignKey(l => l.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(l => l.Receiver)
+                .WithMany() // ou .WithMany(u => u.ReceivedLinks)
+                .HasForeignKey(l => l.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

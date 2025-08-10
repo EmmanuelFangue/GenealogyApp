@@ -1,9 +1,14 @@
+using GenealogyApp.Application.DTOs;
+
 namespace GenealogyApp.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<Guid> RegisterUserAsync(string username, string email, string password, string phoneNumber);
-        Task<string> AuthenticateAsync(string username, string password);
-        Task<bool> EnableTwoFactorAsync(Guid userId, bool enabled);
+        Task<UserDto?> RegisterAsync(RegisterUserDto dto);
+        Task<LoginResponseDto?> LoginAsync(LoginDto dto);
+        Task<bool> Activate2FAAsync(Activate2FADto dto);
+        Task<UserDto?> GetUserAsync(Guid userId);
+        Task<bool> UpdateUserAsync(Guid userId, UpdateUserDto dto);
+        Task<bool> DeleteUserAsync(Guid userId);
     }
 }

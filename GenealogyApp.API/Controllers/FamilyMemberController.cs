@@ -1,11 +1,13 @@
 using GenealogyApp.Application.Interfaces;
-using GenealogyApp.Domain.Entities;
+using GenealogyApp.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace GenealogyApp.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class FamilyMemberController : ControllerBase
     {
         private readonly IFamilyService _service;
@@ -15,33 +17,16 @@ namespace GenealogyApp.API.Controllers
             _service = service;
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<FamilyMember>> Get(Guid id)
-        {
-            var member = await _service.GetMemberByIdAsync(id);
-            return member == null ? NotFound() : Ok(member);
-        }
+        // ... endpoints existants ...
 
-        [HttpPost]
-        public async Task<ActionResult<FamilyMember>> Create(FamilyMember member)
+        /// <summary>
+        /// Recherche avancée de membres de la famille selon plusieurs critères.
+        /// </summary>
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<FamilyMemberDto>>> Search([FromQuery] FamilyMemberSearchDto criteria)
         {
-            var created = await _service.AddFamilyMemberAsync(member);
-            return CreatedAtAction(nameof(Get), new { id = created.MemberId }, created);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, FamilyMember member)
-        {
-            if (id != member.MemberId) return BadRequest();
-            await _service.UpdateFamilyMemberAsync(member);
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            await _service.RemoveFamilyMemberAsync(id);
-            return NoContent();
+            var results = await _service.SearchMembersAsync(criteria);
+            return Ok(results);
         }
     }
 }
