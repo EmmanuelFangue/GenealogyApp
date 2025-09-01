@@ -4,15 +4,17 @@ namespace GenealogyApp.Domain.Entities;
 
 public class Relationship
 {
-    public Guid Id { get; set; }           // PK (GUID)
-    public Guid FromMemberId { get; set; } // source
-    public Guid ToMemberId { get; set; }   // cible
-    public int TypeId { get; set; }        // FK -> RelationshipType
+
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid FromMemberId { get; set; }
+    public Guid ToMemberId { get; set; }
+    public int TypeId { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Props navigation (optionnelles)
-    // public FamilyMember? FromMember { get; set; }
-    // public FamilyMember? ToMember { get; set; }
-    // public RelationshipType? Type { get; set; }
+    public FamilyMember FromMember { get; set; } = default!;
+    public FamilyMember ToMember { get; set; } = default!;
+    public RelationshipType Type { get; set; } = default!;
+
 }

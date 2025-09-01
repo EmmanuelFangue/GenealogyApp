@@ -1,7 +1,7 @@
 ﻿using GenealogyApp.Application.DTOs;
-using GenealogyApp.Application.Services;
 using GenealogyApp.Domain.Entities;
 using GenealogyApp.Infrastructure.Data;
+using GenealogyApp.Infrastructure.Services;
 using Moq;
 
 namespace GenealogyApp.Tests.Controllers

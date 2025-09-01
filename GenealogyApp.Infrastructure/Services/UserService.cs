@@ -2,26 +2,66 @@ using GenealogyApp.Application.DTOs;
 using GenealogyApp.Application.Interfaces;
 using GenealogyApp.Domain.Entities;
 using GenealogyApp.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
-namespace GenealogyApp.Application.Services
+namespace GenealogyApp.Infrastructure.Services
 {
+
     public class UserService : IUserService
     {
         private readonly GenealogyDbContext _db;
-        private readonly IConfiguration _config; // <-- AJOUT
+        private readonly IConfiguration _config;
+        private readonly IPasswordHasher<User> _hasher;
 
-        public UserService(GenealogyDbContext db, IConfiguration config)
+        public UserService(GenealogyDbContext db, IConfiguration config, IPasswordHasher<User> hasher)
         {
             _db = db;
             _config = config;
+            _hasher = hasher;
         }
+
+        public async Task<UserDto?> RegisterAsync(RegisterUserDto dto)
+        {
+            if (await _db.Users.AnyAsync(u => u.Username == dto.Username || u.Email == dto.Email))
+                return null;
+
+            var user = new User
+            {
+                Username = dto.Username,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                TwoFactorEnabled = false,
+                CreatedAt = DateTime.UtcNow
+            };
+            user.PasswordHash = _hasher.HashPassword(user, dto.Password);
+
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+            return ToDto(user);
+        }
+
+        public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
+        {
+            var user = await _db.Users
+                .FirstOrDefaultAsync(u => u.Username == dto.UsernameOrEmail || u.Email == dto.UsernameOrEmail);
+            if (user is null) return null;
+
+            var verify = _hasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+            if (verify == PasswordVerificationResult.Failed) return null;
+
+            var token = GenerateJwtToken(user.UserId, user.Username);
+            return new LoginResponseDto { UserId = user.UserId, Token = token, TwoFactorEnabled = user.TwoFactorEnabled };
+        }
+
         public string GenerateJwtToken(Guid userId, string username)
         {
             var claims = new[]
@@ -41,46 +81,6 @@ namespace GenealogyApp.Application.Services
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
-        }
-
-        public async Task<UserDto?> RegisterAsync(RegisterUserDto dto)
-        {
-            if (await _db.Users.AnyAsync(u => u.Username == dto.Username || u.Email == dto.Email))
-                return null;
-
-            var user = new User
-            {
-                Username = dto.Username,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                PasswordHash = HashPassword(dto.Password),
-                TwoFactorEnabled = false,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
-
-            return ToDto(user);
-        }
-
-        public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
-        {
-            var user = await _db.Users
-                .FirstOrDefaultAsync(u => u.Username == dto.UsernameOrEmail || u.Email == dto.UsernameOrEmail);
-
-            if (user == null || !VerifyPassword(dto.Password, user.PasswordHash))
-                return null;
-
-            // Génère un token JWT ici (non inclus pour la simplicité)
-            var token = "fake-jwt-token";
-
-            return new LoginResponseDto
-            {
-                UserId = user.UserId,
-                Token = token,
-                TwoFactorEnabled = user.TwoFactorEnabled
-            };
         }
 
         public async Task<bool> Activate2FAAsync(Activate2FADto dto)
@@ -154,12 +154,10 @@ namespace GenealogyApp.Application.Services
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
                 TwoFactorEnabled = user.TwoFactorEnabled,
-                CreatedAt = user.CreatedAt,
                 ProfileMemberId = selfMember?.MemberId
             };
         }
-
-
     }
+
 
 }

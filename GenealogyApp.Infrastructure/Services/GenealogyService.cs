@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GenealogyApp.Application.DTOs;
-using GenealogyApp.Application.Interfaces;
 using GenealogyApp.Domain.Entities;
 using GenealogyApp.Infrastructure.Data;
+using GenealogyApp.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace GenealogyApp.Infrastructure.Services;

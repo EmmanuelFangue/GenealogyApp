@@ -1,6 +1,6 @@
 ﻿using GenealogyApp.Infrastructure.Services;
 using GenealogyApp.Application.Interfaces;
-using GenealogyApp.Application.Services;
+using GenealogyApp.Infrastructure.Services;
 using GenealogyApp.Infrastructure.Data;
 using GenealogyApp.Infrastructure.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +10,8 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using GenealogyApp.Application.Mappings;
 using GenealogyApp.API.Middleware;
+using GenealogyApp.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 // ClÃ© secrÃ©te (a stocker dans appsettings ou variables d'env en prod)
@@ -54,11 +56,13 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });
 
-// Injection des services mÃ©tiers
+// Injection des services métiers
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFamilyService, FamilyService>();
 builder.Services.AddScoped<ILinkService, LinkService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => {cfg.AddProfile<MappingProfile>();});

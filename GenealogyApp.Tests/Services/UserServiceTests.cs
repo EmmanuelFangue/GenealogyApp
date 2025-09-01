@@ -1,6 +1,6 @@
 ﻿using Xunit;
 using FluentAssertions;
-using GenealogyApp.Application.Services;
+using GenealogyApp.Infrastructure.Services;
 using GenealogyApp.Application.DTOs;
 using GenealogyApp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -36,7 +36,7 @@ namespace GenealogyApp.Tests.Services
                 })
                 .Build();
 
-            _service = new UserService(_db, config);
+            _service = new UserService(_db, config, new Microsoft.AspNetCore.Identity.PasswordHasher<Domain.Entities.User>());
         }
 
         [Fact]

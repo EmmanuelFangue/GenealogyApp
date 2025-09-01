@@ -2,7 +2,7 @@ using GenealogyApp.Application.Interfaces;
 using GenealogyApp.Domain.Entities;
 using GenealogyApp.Infrastructure.Data;
 
-namespace GenealogyApp.Application.Services
+namespace GenealogyApp.Infrastructure.Services
 {
     public class LinkService : ILinkService
     {

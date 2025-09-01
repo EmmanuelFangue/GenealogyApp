@@ -5,7 +5,7 @@ using GenealogyApp.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
-namespace GenealogyApp.Application.Services
+namespace GenealogyApp.Infrastructure.Services
 {
     public class PhotoService : IPhotoService
     {

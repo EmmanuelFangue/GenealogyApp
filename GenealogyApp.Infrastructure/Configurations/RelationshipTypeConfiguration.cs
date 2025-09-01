@@ -6,13 +6,13 @@ namespace GenealogyApp.Infrastructure.Configurations;
 
 public class RelationshipTypeConfiguration : IEntityTypeConfiguration<RelationshipType>
 {
+
     public void Configure(EntityTypeBuilder<RelationshipType> b)
     {
-        b.ToTable("RelationshipType", schema: "genea");
+        b.ToTable("RelationshipType", "genea");
         b.HasKey(x => x.Id);
-        b.Property(x => x.Code)
-         .IsRequired()
-         .HasMaxLength(50);
+        b.Property(x => x.Code).HasMaxLength(50).IsRequired();
         b.HasIndex(x => x.Code).IsUnique();
     }
+
 }

@@ -1,9 +1,10 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://localhost:7212/api',
+  baseURL: import.meta.env.VITE_API_URL ?? 'https://localhost:7212/api',
   timeout: 10000,
 });
+
 
 // Intercepteur pour ajouter le JWT à chaque requête
 apiClient.interceptors.request.use((config) => {

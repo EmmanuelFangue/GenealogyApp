@@ -29,7 +29,11 @@ namespace GenealogyApp.Infrastructure.Configurations
                 .IsRequired();
 
             builder.Property(u => u.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+
+            builder.Property<byte[]>("RowVersion").IsRowVersion();
+
+
         }
     }
 }
