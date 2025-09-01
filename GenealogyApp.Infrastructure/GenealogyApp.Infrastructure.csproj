@@ -6,6 +6,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GenealogyApp.Application\GenealogyApp.Application.csproj" />
     <ProjectReference Include="..\GenealogyApp.Domain\GenealogyApp.Domain.csproj" />
     <ProjectReference Include="..\GenealogyApp.Shared\GenealogyApp.Shared.csproj" />
   </ItemGroup>

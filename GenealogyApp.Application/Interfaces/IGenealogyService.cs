@@ -1,18 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using GenealogyApp.Application.DTOs;
 
-namespace GenealogyApp.Application.Interfaces
+namespace GenealogyApp.Application.Interfaces;
+
+public interface IGenealogyService
 {
-    public interface IGenealogyService 
-    {
-        // ... autres méthodes ...
-        Task AddParentOfAsync(Guid parentId, Guid childId, CancellationToken ct);
-        // appelle la proc stockée genea.AddParentOf (préserve la closure)
+    Task AddParentOfAsync(Guid parentId, Guid childId, Guid performedByUserId, CancellationToken ct = default);
 
-        Task<IReadOnlyList<AncestorDto>> GetAncestorsAsync(Guid memberId, CancellationToken ct);
-        // SELECT ac join FamilyMembers ORDER BY Depth
+    Task<IReadOnlyList<AncestorDto>> GetAncestorsAsync(Guid memberId, CancellationToken ct = default);
 
-        Task<CommonAncestorDto?> GetClosestCommonAncestorAsync(Guid a, Guid b, CancellationToken ct);
-        // TOP(1) ancêtre commun par somme des profondeurs
-
-    }
+    Task<CommonAncestorDto?> GetClosestCommonAncestorAsync(Guid memberAId, Guid memberBId, CancellationToken ct = default);
 }

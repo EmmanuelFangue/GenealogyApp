@@ -1,3 +1,4 @@
+﻿using GenealogyApp.Infrastructure.Services;
 using GenealogyApp.Application.Interfaces;
 using GenealogyApp.Application.Services;
 using GenealogyApp.Infrastructure.Data;
@@ -11,12 +12,12 @@ using GenealogyApp.Application.Mappings;
 using GenealogyApp.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
-// Clé secréte (a stocker dans appsettings ou variables d'env en prod)
+// ClÃ© secrÃ©te (a stocker dans appsettings ou variables d'env en prod)
 var secretKey = builder.Configuration["Jwt:Key"] ?? "supersecretkey";
 var issuer = builder.Configuration["Jwt:Issuer"] ?? "GenealogyApp";
 var audience = builder.Configuration["Jwt:Audience"] ?? "GenealogyAppClient";
 
-// Connexion à la base de données SQL Server
+// Connexion Ã  la base de donnÃ©es SQL Server
 
 if (builder.Environment.EnvironmentName != "Testing")
 {
@@ -53,7 +54,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });
 
-// Injection des services métiers
+// Injection des services mÃ©tiers
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IFamilyService, FamilyService>();
 builder.Services.AddScoped<ILinkService, LinkService>();
@@ -62,7 +63,7 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => {cfg.AddProfile<MappingProfile>();});
 
-// Swagger + sécurité
+// Swagger + sÃ©curitÃ©
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -89,6 +90,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddControllers();
 
+builder.Services.AddScoped<IGenealogyService, GenealogyService>();
+
 var app = builder.Build();
 
 // Middleware
@@ -113,3 +116,4 @@ app.MapControllers();
 app.Run();
 
 public partial class Program { }
+
